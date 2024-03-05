@@ -45,7 +45,7 @@ namespace HW6
                 {
                     foreach (Task task in values)
                     {
-                        Console.WriteLine($"Выполнение программы: {task.IsCompleted}");
+                        Console.WriteLine($"Выполнение загрузки картинки {task.Id}: {task.IsCompleted}");
                     }
                 }
             }
