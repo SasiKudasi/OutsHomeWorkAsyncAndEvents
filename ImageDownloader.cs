@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace HW6
 {
-    internal class ImageDownloader
+    public class ImageDownloader
     {
         public event Action<string, string>? ImageStarted;
         public event Action<string, string>? ImageCompleted;
@@ -22,29 +22,14 @@ namespace HW6
 
         public async Task Download()
         {
-            FileName += ".jpg";
-            var myWebClient = new WebClient();
-            this.ImageStarted?.Invoke(this.FileName, this.Url);
-            await myWebClient.DownloadFileTaskAsync(Url, FileName);
-            this.ImageCompleted?.Invoke(this.FileName, this.Url);
-        }
-    }
-    class Subsriber
-    {
-        public void ImageStarted(ImageDownloader imageDownloader)
-        {
-            imageDownloader.ImageStarted += (string fileName, string url) =>
+            using (var myWebClient = new WebClient())
             {
-                Console.WriteLine($"Качаю \"{fileName}\" из \"{url}\" .......\n\n");
-            };
-        }
+                this.ImageStarted?.Invoke(this.FileName, this.Url);
+                await myWebClient.DownloadFileTaskAsync(Url, FileName);
+                this.ImageCompleted?.Invoke(this.FileName, this.Url);
+            }
 
-        public void ImageCompleted(ImageDownloader imageDownloader)
-        {
-            imageDownloader.ImageCompleted += (string fileName, string url) =>
-            {
-                Console.WriteLine($"Успешно скачал \"{fileName}\" из \"{url}\" .......\n\n");
-            };
         }
     }
+
 }

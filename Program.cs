@@ -1,5 +1,4 @@
 ﻿using System.Net;
-
 namespace HW6
 {
     internal class Program
@@ -11,15 +10,11 @@ namespace HW6
 
             string remoteUri = "https://webneel.com/daily/sites/default/files/images/daily/08-2018/1-nature-photography-spring-season-mumtazshamsee.jpg";
             string fileName = "bigimage";
-            var download = new ImageDownloader(remoteUri, fileName);
-            var startSender = new Subsriber();
-
             Task res = null;
             for (int i = 0; i < 10; i++)
             {
-                fileName += $"{i}";
-                download = new ImageDownloader(remoteUri, fileName);
-                startSender = new Subsriber(); 
+                var download = new ImageDownloader(remoteUri, $"{fileName}{i}.jpg");
+                var startSender = new Subsriber();
                 startSender.ImageStarted(download);
                 startSender.ImageCompleted(download);
                 res = download.Download();
@@ -32,6 +27,7 @@ namespace HW6
 
         static void TaskIsComplited(List<Task> values, ConsoleKeyInfo key)
         {
+            var cts = new CancellationTokenSource();
             while (true)
             {
                 key = Console.ReadKey();
@@ -46,8 +42,14 @@ namespace HW6
                     foreach (Task task in values)
                     {
                         Console.WriteLine($"Выполнение загрузки картинки {task.Id}: {task.IsCompleted}");
+                        if (cts.IsCancellationRequested)
+                        {
+                            cts.Cancel();
+                        }
+
                     }
                 }
+
             }
         }
 
