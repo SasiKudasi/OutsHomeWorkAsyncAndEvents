@@ -1,4 +1,6 @@
 ﻿using System.Net;
+using System.Threading;
+
 namespace HW6
 {
     internal class Program
@@ -10,21 +12,19 @@ namespace HW6
 
             string remoteUri = "https://webneel.com/daily/sites/default/files/images/daily/08-2018/1-nature-photography-spring-season-mumtazshamsee.jpg";
             string fileName = "bigimage";
-            Task res = null;
+            var cts = new CancellationTokenSource();
             for (int i = 0; i < 10; i++)
             {
-                var cts = new CancellationTokenSource();
-                var ct = cts.Token;
                 var download = new ImageDownloader(remoteUri, $"{fileName}{i}.jpg");
                 var startSender = new Subsriber();
                 startSender.ImageStarted(download);
                 startSender.ImageCompleted(download);
-                res = download.Download(ct);
-                tasks.Add(res);
-
+                tasks.Add(download.Download(cts.Token));
             }
             ConsoleKeyInfo key = Console.ReadKey();
             TaskIsComplited(tasks, key);
+
+
         }
 
         static void TaskIsComplited(List<Task> values, ConsoleKeyInfo key)

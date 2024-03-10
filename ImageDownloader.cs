@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Net.Http;
 
 namespace HW6
 {
@@ -24,13 +18,20 @@ namespace HW6
         public async Task Download(CancellationToken cancellationToken)
         {
             ImageStarted?.Invoke(FileName, Url);
-            using (var myWebClient = new HttpClient())
+            await Task.Run(async () =>
             {
-                var response = await myWebClient.GetAsync(Url, cancellationToken);
-                var bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-                await File.WriteAllBytesAsync(FileName, bytes, cancellationToken);
-            }
-            ImageCompleted?.Invoke(FileName, Url);
+                using (var myWebClient = new HttpClient())
+                {
+                    using (var response = await myWebClient.GetAsync(Url, cancellationToken))
+                    {
+                        var bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                        await File.WriteAllBytesAsync(FileName, bytes, cancellationToken);
+                    }
+                    ImageCompleted?.Invoke(FileName, Url);
+                }
+            }, cancellationToken);
+
+
 
         }
     }
