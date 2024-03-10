@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HW6
@@ -20,14 +21,16 @@ namespace HW6
             this.FileName = fileName;
         }
 
-        public async Task Download()
+        public async Task Download(CancellationToken cancellationToken)
         {
-            using (var myWebClient = new WebClient())
+            ImageStarted?.Invoke(FileName, Url);
+            using (var myWebClient = new HttpClient())
             {
-                this.ImageStarted?.Invoke(this.FileName, this.Url);
-                await myWebClient.DownloadFileTaskAsync(Url, FileName);
-                this.ImageCompleted?.Invoke(this.FileName, this.Url);
+                var response = await myWebClient.GetAsync(Url, cancellationToken);
+                var bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                await File.WriteAllBytesAsync(FileName, bytes, cancellationToken);
             }
+            ImageCompleted?.Invoke(FileName, Url);
 
         }
     }

@@ -13,11 +13,13 @@ namespace HW6
             Task res = null;
             for (int i = 0; i < 10; i++)
             {
+                var cts = new CancellationTokenSource();
+                var ct = cts.Token;
                 var download = new ImageDownloader(remoteUri, $"{fileName}{i}.jpg");
                 var startSender = new Subsriber();
                 startSender.ImageStarted(download);
                 startSender.ImageCompleted(download);
-                res = download.Download();
+                res = download.Download(ct);
                 tasks.Add(res);
 
             }
@@ -27,7 +29,7 @@ namespace HW6
 
         static void TaskIsComplited(List<Task> values, ConsoleKeyInfo key)
         {
-            var cts = new CancellationTokenSource();
+
             while (true)
             {
                 key = Console.ReadKey();
@@ -42,11 +44,6 @@ namespace HW6
                     foreach (Task task in values)
                     {
                         Console.WriteLine($"Выполнение загрузки картинки {task.Id}: {task.IsCompleted}");
-                        if (cts.IsCancellationRequested)
-                        {
-                            cts.Cancel();
-                        }
-
                     }
                 }
 
