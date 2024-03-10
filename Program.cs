@@ -22,22 +22,21 @@ namespace HW6
                 tasks.Add(download.Download(cts.Token));
             }
             ConsoleKeyInfo key = Console.ReadKey();
-            TaskIsComplited(tasks, key);
+            TaskIsComplited(tasks, key, cts);
 
 
         }
 
-        static void TaskIsComplited(List<Task> values, ConsoleKeyInfo key)
-        {
-
-            while (true)
+        static void TaskIsComplited(List<Task> values, ConsoleKeyInfo key, CancellationTokenSource cancellationToken)
+        {            
+            while (!cancellationToken.IsCancellationRequested)
             {
                 key = Console.ReadKey();
                 Console.WriteLine("Нажмите \"A\" для выхода");
 
                 if (key.KeyChar == 'A')
                 {
-                    Environment.Exit(0);
+                    cancellationToken.Cancel();                    
                 }
                 else
                 {
@@ -46,7 +45,6 @@ namespace HW6
                         Console.WriteLine($"Выполнение загрузки картинки {task.Id}: {task.IsCompleted}");
                     }
                 }
-
             }
         }
 

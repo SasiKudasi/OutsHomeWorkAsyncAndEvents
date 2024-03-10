@@ -18,20 +18,16 @@ namespace HW6
         public async Task Download(CancellationToken cancellationToken)
         {
             ImageStarted?.Invoke(FileName, Url);
-            await Task.Run(async () =>
+
+            using (var myWebClient = new HttpClient())
             {
-                using (var myWebClient = new HttpClient())
+                using (var response = await myWebClient.GetAsync(Url, cancellationToken))
                 {
-                    using (var response = await myWebClient.GetAsync(Url, cancellationToken))
-                    {
-                        var bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-                        await File.WriteAllBytesAsync(FileName, bytes, cancellationToken);
-                    }
-                    ImageCompleted?.Invoke(FileName, Url);
+                    var bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                    await File.WriteAllBytesAsync(FileName, bytes, cancellationToken);
                 }
-            }, cancellationToken);
-
-
+                ImageCompleted?.Invoke(FileName, Url);
+            }
 
         }
     }
